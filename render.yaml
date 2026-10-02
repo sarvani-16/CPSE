@@ -57,10 +57,7 @@ services:
           name: cpse-db
           property: password
       - key: ML_SERVICE_URL
-        fromService:
-          type: web
-          name: cpse-ml-service
-          property: host
+        value: https://cpse-ml-service.onrender.com
       - key: FRONTEND_URL
         value: https://*.onrender.com
       - key: JWT_SECRET

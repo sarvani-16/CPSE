@@ -39,6 +39,10 @@ public class AiService {
             return "http://localhost:8001";
         }
         String trimmed = mlServiceUrl.trim().replaceAll("/+$", "");
+        // If it's a Render internal service name (no dots, not localhost), append .onrender.com
+        if (!trimmed.contains(".") && !trimmed.contains("localhost") && !trimmed.contains("127.0.0.1")) {
+            trimmed = trimmed + ".onrender.com";
+        }
         if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
             return "https://" + trimmed;
         }
@@ -73,8 +77,8 @@ public class AiService {
             }
 
         } catch (ResourceAccessException e) {
-            log.error("AI matching service unreachable at {}: {}", mlServiceUrl, e.getMessage());
-            throw new AiServiceUnavailableException("AI matching service is currently unavailable. Please ensure the Python ML microservice is running on " + mlServiceUrl);
+            log.error("AI matching service unreachable at {}: {}", getMlServiceUrl(), e.getMessage());
+            throw new AiServiceUnavailableException("AI matching service is currently unavailable. Please ensure the Python ML microservice is running on " + getMlServiceUrl());
         } catch (RestClientException e) {
             log.error("Error communicating with AI matching service: {}", e.getMessage());
             throw new AiServiceUnavailableException("AI matching service communication failure: " + e.getMessage());

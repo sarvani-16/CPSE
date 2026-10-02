@@ -19,13 +19,16 @@ import java.util.Map;
 @Tag(name = "AI Model Status (ADMIN ONLY)", description = "Safe operational telemetry for AI/ML Microservice")
 public class ModelStatusController {
 
-    @Value("${ml-service.url:${ML_SERVICE_URL:http://localhost:8001}}")
-    private String mlServiceUrl;
+    private final com.sih.material.integration.AiService aiService;
+
+    public ModelStatusController(com.sih.material.integration.AiService aiService) {
+        this.aiService = aiService;
+    }
 
     @GetMapping
     @Operation(summary = "Get Safe AI Model Telemetry and Pipeline Health")
     public ResponseEntity<Map<String, Object>> getModelStatus() {
-        String activeEndpoint = mlServiceUrl != null ? mlServiceUrl.trim().replaceAll("/+$", "") : "http://localhost:8001";
+        String activeEndpoint = aiService.getMlServiceUrl();
         Map<String, Object> status = new LinkedHashMap<>();
         status.put("ml_service_status", "CONNECTED");
         status.put("ml_endpoint", activeEndpoint);
