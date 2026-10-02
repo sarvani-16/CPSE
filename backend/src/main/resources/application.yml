@@ -1,5 +1,6 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
+  address: ${SERVER_ADDRESS:0.0.0.0}
   servlet:
     context-path: /
 
@@ -8,9 +9,9 @@ spring:
     name: sih26099-material-harmonization-backend
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:sih26099}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:sih26099}}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:saruu@1624}
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -26,6 +27,15 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 25MB
+
+# JWT Security Configuration
+jwt:
+  secret: ${JWT_SECRET:SIH26099EnterpriseSecureMaterialHarmonizationSecretKey2026_CPSE_National_Master}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+# CORS Configuration
+cors:
+  allowed-origins: ${FRONTEND_URL:}
 
 # AI / ML Microservice Integration
 ml-service:

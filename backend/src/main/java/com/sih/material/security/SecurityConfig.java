@@ -60,7 +60,7 @@ public class SecurityConfig {
 
                         // 1. Public Authentication & Health Endpoints
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                        .requestMatchers("/api/health").permitAll()
+                        .requestMatchers("/health", "/api/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
 

@@ -6,7 +6,26 @@
  * Spring Security enforces JWT validation & RBAC (ADMIN, REVIEWER, OFFICER).
  */
 
-const BASE_URL: string = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8080/api';
+// Resolve Backend API URL from environment variables (VITE_API_URL or VITE_API_BASE_URL)
+const resolveBaseUrl = (): string => {
+  const envUrl = (import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_API_BASE_URL;
+  if (!envUrl) {
+    return '/api';
+  }
+  let trimmed = String(envUrl).trim();
+  // If host only without protocol (e.g. cpse-backend.onrender.com), prepend https://
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
+    trimmed = `https://${trimmed}`;
+  }
+  // Ensure it ends with /api
+  if (trimmed.endsWith('/api')) {
+    return trimmed;
+  }
+  return `${trimmed.replace(/\/+$/, '')}/api`;
+};
+
+export const BASE_URL: string = resolveBaseUrl();
+export const ML_BASE_URL: string = (import.meta as any).env?.VITE_ML_API_URL || '';
 
 export interface UserInfo {
   id: number;

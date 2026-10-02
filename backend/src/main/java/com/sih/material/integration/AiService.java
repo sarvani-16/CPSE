@@ -27,11 +27,22 @@ public class AiService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${ml-service.url:http://localhost:8001}")
+    @Value("${ml-service.url:${ML_SERVICE_URL:http://localhost:8001}}")
     private String mlServiceUrl;
 
     public AiService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    public String getMlServiceUrl() {
+        if (mlServiceUrl == null || mlServiceUrl.isBlank()) {
+            return "http://localhost:8001";
+        }
+        String trimmed = mlServiceUrl.trim().replaceAll("/+$", "");
+        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+            return "https://" + trimmed;
+        }
+        return trimmed;
     }
 
     /**
@@ -39,7 +50,7 @@ public class AiService {
      * by invoking FastAPI endpoint POST /api/match.
      */
     public CompareResponse compareMaterials(String titleA, String titleB) {
-        String endpoint = mlServiceUrl + "/api/match";
+        String endpoint = getMlServiceUrl() + "/api/match";
         log.debug("Invoking ML Service endpoint: {}", endpoint);
 
         HttpHeaders headers = new HttpHeaders();
@@ -74,7 +85,7 @@ public class AiService {
      * Retrieves health status from the Python ML microservice.
      */
     public Map<String, Object> checkMlServiceHealth() {
-        String endpoint = mlServiceUrl + "/api/health";
+        String endpoint = getMlServiceUrl() + "/api/health";
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(endpoint, Map.class);
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -85,8 +96,8 @@ public class AiService {
         }
         Map<String, Object> fallback = new HashMap<>();
         fallback.put("status", "UNAVAILABLE");
-        fallback.put("url", mlServiceUrl);
-        fallback.put("message", "Python ML service is not reachable on port 8001");
+        fallback.put("url", getMlServiceUrl());
+        fallback.put("message", "Python ML service is not reachable at " + getMlServiceUrl());
         return fallback;
     }
 }

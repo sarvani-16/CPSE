@@ -19,15 +19,16 @@ import java.util.Map;
 @Tag(name = "AI Model Status (ADMIN ONLY)", description = "Safe operational telemetry for AI/ML Microservice")
 public class ModelStatusController {
 
-    @Value("${ml-service.url:http://localhost:8001}")
+    @Value("${ml-service.url:${ML_SERVICE_URL:http://localhost:8001}}")
     private String mlServiceUrl;
 
     @GetMapping
     @Operation(summary = "Get Safe AI Model Telemetry and Pipeline Health")
     public ResponseEntity<Map<String, Object>> getModelStatus() {
+        String activeEndpoint = mlServiceUrl != null ? mlServiceUrl.trim().replaceAll("/+$", "") : "http://localhost:8001";
         Map<String, Object> status = new LinkedHashMap<>();
         status.put("ml_service_status", "CONNECTED");
-        status.put("ml_endpoint", "http://localhost:8001");
+        status.put("ml_endpoint", activeEndpoint);
         status.put("embedding_model", "sentence-transformers/all-MiniLM-L6-v2");
         status.put("hybrid_scoring_weights", Map.of(
                 "semantic", 0.50,

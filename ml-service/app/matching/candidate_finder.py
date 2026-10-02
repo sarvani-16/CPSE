@@ -33,7 +33,11 @@ def find_top_candidates(
     evaluates hybrid similarity, and returns ranked candidates with explanations.
     """
     if db_path is None:
-        db_path = PROJECT_ROOT / "outputs" / "analysis" / "materials.db"
+        local_db = Path(__file__).resolve().parent.parent.parent / "data" / "materials.db"
+        if local_db.exists():
+            db_path = local_db
+        else:
+            db_path = PROJECT_ROOT / "outputs" / "analysis" / "materials.db"
 
     if not db_path.exists():
         raise FileNotFoundError(f"Material database not found at {db_path}")

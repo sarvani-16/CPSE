@@ -16,10 +16,16 @@ from typing import Dict, List, Any
 import numpy as np
 import pandas as pd
 
-from backend.app.ml.tfidf_matcher import get_tfidf_matcher
-from backend.app.ml.fuzzy_matcher import get_fuzzy_matcher
-from backend.app.ml.semantic_matcher import get_semantic_matcher
-from backend.app.ml.hybrid_engine import get_hybrid_engine
+try:
+    from app.matching.tfidf_matcher import get_tfidf_matcher
+    from app.matching.fuzzy_matcher import get_fuzzy_matcher
+    from app.matching.semantic_matcher import get_semantic_matcher
+    from app.matching.hybrid_engine import get_hybrid_engine
+except ImportError:
+    from backend.app.ml.tfidf_matcher import get_tfidf_matcher
+    from backend.app.ml.fuzzy_matcher import get_fuzzy_matcher
+    from backend.app.ml.semantic_matcher import get_semantic_matcher
+    from backend.app.ml.hybrid_engine import get_hybrid_engine
 
 
 def calculate_metrics(y_true: List[int], y_pred: List[int]) -> Dict[str, Any]:
