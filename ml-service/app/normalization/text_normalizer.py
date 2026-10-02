@@ -5,7 +5,7 @@ Description: Specification-preserving industrial text normalizer for product & m
 """
 
 import re
-from typing import Dict, List, Set, Tuple, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 import pandas as pd
 
 # Safe standard unit and abbreviation normalizations (without losing technical meaning)
