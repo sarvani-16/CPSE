@@ -50,7 +50,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({ materi
               <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary-navy)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '6px', marginBottom: '10px' }}>
                 1. Original CPSE Material Information
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontSize: '12.5px' }}>
+              <div className="modal-grid-3col" style={{ display: 'grid', gap: '12px', fontSize: '12.5px' }}>
                 <div>
                   <div style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Material Code:</div>
                   <strong className="code-id">{detail.material_code}</strong>
@@ -70,7 +70,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({ materi
                   {detail.description}
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '10px', fontSize: '12.5px' }}>
+              <div className="modal-grid-2col" style={{ display: 'grid', gap: '12px', marginTop: '10px', fontSize: '12.5px' }}>
                 <div>
                   <div style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Technical Specification:</div>
                   <div>{detail.specification || 'None specified'}</div>
@@ -89,9 +89,9 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({ materi
               </h4>
               <div style={{ fontSize: '12.5px', marginBottom: '8px' }}>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Normalized Representation:</div>
-                <code style={{ fontSize: '12px' }}>{detail.normalized_info?.normalized_description || detail.description.toUpperCase()}</code>
+                <code style={{ fontSize: '12px', wordBreak: 'break-all' }}>{detail.normalized_info?.normalized_description || detail.description.toUpperCase()}</code>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontSize: '12.5px' }}>
+              <div className="modal-grid-3col" style={{ display: 'grid', gap: '12px', fontSize: '12.5px' }}>
                 <div>
                   <div style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>Extracted Grade:</div>
                   <span>{detail.normalized_info?.extracted_attributes?.grade || detail.material_grade || 'Standard'}</span>

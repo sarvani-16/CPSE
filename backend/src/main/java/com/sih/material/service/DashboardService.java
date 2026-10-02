@@ -274,12 +274,12 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getOfficerDashboard(String cpseName, String username) {
+    public Map<String, Object> getOfficerDashboard(Long userId, String cpseName, String username) {
         String effectiveCpse = (cpseName != null && !cpseName.isBlank() && !cpseName.equalsIgnoreCase("CPSE_CONSORTIUM") && !cpseName.equalsIgnoreCase("GOVERNMENT_AUDIT"))
                 ? cpseName : "ONGC";
 
-        long myMaterials = sourceMaterialRepository.countByCpseNameIgnoreCase(effectiveCpse);
-        long uploadedToday = sourceMaterialRepository.countByCpseNameAndCreatedAtAfter(effectiveCpse, LocalDate.now().atStartOfDay());
+        long myMaterials = (userId != null) ? sourceMaterialRepository.countByUserId(userId) : sourceMaterialRepository.countByCpseNameIgnoreCase(effectiveCpse);
+        long uploadedToday = (userId != null) ? sourceMaterialRepository.countByUserIdAndCreatedAtAfter(userId, LocalDate.now().atStartOfDay()) : sourceMaterialRepository.countByCpseNameAndCreatedAtAfter(effectiveCpse, LocalDate.now().atStartOfDay());
         long processing = reviewRepository.countPendingBySourceMaterialCpse(effectiveCpse);
         long aiRecommendations = reviewRepository.countBySourceMaterialCpse(effectiveCpse);
         long attention = reviewRepository.countAttentionBySourceMaterialCpse(effectiveCpse);
@@ -294,8 +294,10 @@ public class DashboardService {
         summary.put("harmonized_materials", harmonized);
         summary.put("cpse_name", effectiveCpse);
 
-        // My Recent Uploads
-        List<SourceMaterial> recentUploads = sourceMaterialRepository.findTop10ByCpseNameIgnoreCaseOrderByCreatedAtDesc(effectiveCpse);
+        // My Recent Uploads (User-specific)
+        List<SourceMaterial> recentUploads = (userId != null)
+                ? sourceMaterialRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId)
+                : sourceMaterialRepository.findTop10ByCpseNameIgnoreCaseOrderByCreatedAtDesc(effectiveCpse);
 
         // Processing Status Breakdown
         List<Map<String, Object>> processingStatus = List.of(
@@ -335,5 +337,10 @@ public class DashboardService {
         resp.put("recent_recommendations", recommendations);
         resp.put("material_activity", activity);
         return resp;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getOfficerDashboard(String cpseName, String username) {
+        return getOfficerDashboard(null, cpseName, username);
     }
 }

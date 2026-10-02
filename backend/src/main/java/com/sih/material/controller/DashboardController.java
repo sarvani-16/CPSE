@@ -49,14 +49,16 @@ public class DashboardController {
     @PreAuthorize("hasAnyRole('ADMIN', 'OFFICER')")
     @Operation(summary = "Get Material Operations Dashboard for Officer CPSE")
     public ResponseEntity<Map<String, Object>> getOfficerDashboard(Authentication authentication) {
+        Long userId = null;
         String cpseName = null;
         String username = null;
         if (authentication != null) {
             username = authentication.getName();
             if (authentication.getPrincipal() instanceof UserPrincipal principal) {
+                userId = principal.getId();
                 cpseName = principal.getCpseName();
             }
         }
-        return ResponseEntity.ok(dashboardService.getOfficerDashboard(cpseName, username));
+        return ResponseEntity.ok(dashboardService.getOfficerDashboard(userId, cpseName, username));
     }
 }

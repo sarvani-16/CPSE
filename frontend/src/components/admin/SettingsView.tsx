@@ -109,42 +109,44 @@ export const SettingsView: React.FC = () => {
             Verified endpoint topology and cross-service communication
           </p>
 
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Component</th>
-                <th>Network Host</th>
-                <th>Protocol</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Frontend Client</td>
-                <td><code style={{ fontSize: '12px' }}>{typeof window !== 'undefined' ? window.location.host : 'SPA Client'}</code></td>
-                <td>HTTPS/SPA</td>
-                <td><span className="badge badge-success">Online</span></td>
-              </tr>
-              <tr>
-                <td>Spring Boot Backend</td>
-                <td><code style={{ fontSize: '12px' }}>{BASE_URL}</code></td>
-                <td>REST / Bearer JWT</td>
-                <td><span className="badge badge-success">Active</span></td>
-              </tr>
-              <tr>
-                <td>PostgreSQL DB</td>
-                <td><code style={{ fontSize: '12px' }}>PostgreSQL Managed / Cloud</code></td>
-                <td>JPA / HikariCP</td>
-                <td><span className="badge badge-success">Connected</span></td>
-              </tr>
-              <tr>
-                <td>Python FastAPI ML</td>
-                <td><code style={{ fontSize: '12px' }}>FastAPI ML Microservice</code></td>
-                <td>REST (Internal)</td>
-                <td><span className="badge badge-success">Healthy</span></td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Network Host</th>
+                  <th>Protocol</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Frontend Client</td>
+                  <td><code style={{ fontSize: '12px' }}>{typeof window !== 'undefined' ? window.location.host : 'SPA Client'}</code></td>
+                  <td>HTTPS/SPA</td>
+                  <td><span className="badge badge-success">Online</span></td>
+                </tr>
+                <tr>
+                  <td>Spring Boot Backend</td>
+                  <td><code style={{ fontSize: '12px' }}>{BASE_URL}</code></td>
+                  <td>REST / Bearer JWT</td>
+                  <td><span className="badge badge-success">Active</span></td>
+                </tr>
+                <tr>
+                  <td>PostgreSQL DB</td>
+                  <td><code style={{ fontSize: '12px' }}>PostgreSQL Managed / Cloud</code></td>
+                  <td>JPA / HikariCP</td>
+                  <td><span className="badge badge-success">Connected</span></td>
+                </tr>
+                <tr>
+                  <td>Python FastAPI ML</td>
+                  <td><code style={{ fontSize: '12px' }}>FastAPI ML Microservice</code></td>
+                  <td>REST (Internal)</td>
+                  <td><span className="badge badge-success">Healthy</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

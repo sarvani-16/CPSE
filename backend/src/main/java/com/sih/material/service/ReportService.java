@@ -98,7 +98,7 @@ public class ReportService {
      * Ingested items across CPSEs with material code, specs, UOM, and grade.
      */
     @Transactional(readOnly = true)
-    public String exportMaterialsMasterCsv(String cpseName, String search) {
+    public String exportMaterialsMasterCsv(Long userId, String userRole, String cpseName, String search) {
         StringWriter sw = new StringWriter();
         try (CSVPrinter printer = new CSVPrinter(sw, CSVFormat.DEFAULT.builder()
                 .setHeader("Material Code", "Description", "CPSE", "Category", "Material Type",
@@ -107,17 +107,31 @@ public class ReportService {
 
             boolean hasCpse = cpseName != null && !cpseName.isBlank() && !"ALL".equalsIgnoreCase(cpseName.trim());
             boolean hasSearch = search != null && !search.isBlank();
+            boolean isAdmin = userRole != null && "ADMIN".equalsIgnoreCase(userRole.trim());
 
             List<SourceMaterial> materials;
-            if (hasCpse || hasSearch) {
-                Page<SourceMaterial> p = sourceMaterialRepository.searchMaterials(
-                        hasCpse ? cpseName.trim() : null,
-                        hasSearch ? search.trim() : null,
-                        PageRequest.of(0, 10000, Sort.by(Sort.Direction.ASC, "materialCode"))
-                );
-                materials = p.getContent();
+            if (isAdmin) {
+                if (hasCpse || hasSearch) {
+                    Page<SourceMaterial> p = sourceMaterialRepository.searchMaterials(
+                            hasCpse ? cpseName.trim() : null,
+                            hasSearch ? search.trim() : null,
+                            PageRequest.of(0, 10000, Sort.by(Sort.Direction.ASC, "materialCode"))
+                    );
+                    materials = p.getContent();
+                } else {
+                    materials = sourceMaterialRepository.findAll(Sort.by(Sort.Direction.ASC, "materialCode"));
+                }
             } else {
-                materials = sourceMaterialRepository.findAll(Sort.by(Sort.Direction.ASC, "materialCode"));
+                if (userId == null) {
+                    materials = Collections.emptyList();
+                } else {
+                    materials = sourceMaterialRepository.findForExportUser(
+                            userId,
+                            hasCpse ? cpseName.trim() : null,
+                            hasSearch ? search.trim() : null,
+                            Sort.by(Sort.Direction.ASC, "materialCode")
+                    );
+                }
             }
 
             for (SourceMaterial m : materials) {
@@ -141,6 +155,11 @@ public class ReportService {
             throw new RuntimeException("Failed to generate material master CSV report", e);
         }
         return sw.toString();
+    }
+
+    @Transactional(readOnly = true)
+    public String exportMaterialsMasterCsv(String cpseName, String search) {
+        return exportMaterialsMasterCsv(null, "ADMIN", cpseName, search);
     }
 
     /**

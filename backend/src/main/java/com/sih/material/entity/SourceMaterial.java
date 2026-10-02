@@ -4,14 +4,24 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "source_materials", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"cpse_name", "material_code"})
+@Table(name = "source_materials", indexes = {
+    @Index(name = "idx_source_material_user_id", columnList = "user_id"),
+    @Index(name = "idx_source_material_cpse", columnList = "cpse_name"),
+    @Index(name = "idx_source_material_code", columnList = "material_code")
 })
 public class SourceMaterial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id")
+    private Long userId;
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @Column(name = "cpse_name", nullable = false, length = 100)
     private String cpseName;
@@ -56,6 +66,12 @@ public class SourceMaterial {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public String getCpseName() { return cpseName; }
     public void setCpseName(String cpseName) { this.cpseName = cpseName; }

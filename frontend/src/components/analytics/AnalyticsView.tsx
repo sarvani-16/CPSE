@@ -161,7 +161,8 @@ export const AnalyticsView: React.FC = () => {
               </div>
             </div>
 
-            <table className="data-table">
+            <div className="table-responsive">
+              <table className="data-table">
               <thead>
                 <tr>
                   <th>Optimization Dimension</th>
@@ -187,6 +188,7 @@ export const AnalyticsView: React.FC = () => {
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>

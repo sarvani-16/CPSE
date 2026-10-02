@@ -53,22 +53,37 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getSourceMaterials(String cpseName, String search, int page, int pageSize) {
+    public Map<String, Object> getSourceMaterials(Long userId, String userRole, String cpseName, String search, int page, int pageSize) {
         Pageable pageable = PageRequest.of(Math.max(0, page - 1), Math.max(1, Math.min(100, pageSize)));
         boolean hasCpse = cpseName != null && !cpseName.trim().isEmpty() && !"ALL".equalsIgnoreCase(cpseName.trim());
         boolean hasSearch = search != null && !search.trim().isEmpty();
+        boolean isAdmin = userRole != null && "ADMIN".equalsIgnoreCase(userRole.trim());
 
         Page<SourceMaterial> p;
-        if (!hasCpse && !hasSearch) {
-            p = sourceMaterialRepository.findAll(pageable);
-        } else if (hasCpse && !hasSearch) {
-            p = sourceMaterialRepository.findByCpseNameIgnoreCase(cpseName.trim(), pageable);
+        if (isAdmin) {
+            if (!hasCpse && !hasSearch) {
+                p = sourceMaterialRepository.findAll(pageable);
+            } else if (hasCpse && !hasSearch) {
+                p = sourceMaterialRepository.findByCpseNameIgnoreCase(cpseName.trim(), pageable);
+            } else {
+                p = sourceMaterialRepository.searchMaterials(
+                        hasCpse ? cpseName.trim() : null,
+                        hasSearch ? search.trim() : null,
+                        pageable
+                );
+            }
         } else {
-            p = sourceMaterialRepository.searchMaterials(
-                    hasCpse ? cpseName.trim() : null,
-                    hasSearch ? search.trim() : null,
-                    pageable
-            );
+            // Strictly isolate to the authenticated user's records
+            if (userId == null) {
+                p = Page.empty(pageable);
+            } else {
+                p = sourceMaterialRepository.searchMaterialsForUser(
+                        userId,
+                        hasCpse ? cpseName.trim() : null,
+                        hasSearch ? search.trim() : null,
+                        pageable
+                );
+            }
         }
 
         Map<String, Object> resp = new HashMap<>();
@@ -83,9 +98,24 @@ public class MaterialService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getMaterialDetail(Long id) {
-        SourceMaterial sm = sourceMaterialRepository.findById(id)
-                .orElseThrow(() -> new com.sih.material.exception.ResourceNotFoundException("Material not found: " + id));
+    public Map<String, Object> getSourceMaterials(String cpseName, String search, int page, int pageSize) {
+        return getSourceMaterials(null, "ADMIN", cpseName, search, page, pageSize);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getMaterialDetail(Long id, Long userId, String userRole) {
+        boolean isAdmin = userRole != null && "ADMIN".equalsIgnoreCase(userRole.trim());
+        SourceMaterial sm;
+        if (isAdmin) {
+            sm = sourceMaterialRepository.findById(id)
+                    .orElseThrow(() -> new com.sih.material.exception.ResourceNotFoundException("Material not found: " + id));
+        } else {
+            sm = (userId != null)
+                    ? sourceMaterialRepository.findByIdAndUserId(id, userId)
+                            .orElseThrow(() -> new com.sih.material.exception.ResourceNotFoundException("Material not found: " + id))
+                    : sourceMaterialRepository.findById(id)
+                            .orElseThrow(() -> new com.sih.material.exception.ResourceNotFoundException("Material not found: " + id));
+        }
 
         Map<String, Object> detail = new LinkedHashMap<>();
         detail.put("id", sm.getId());
@@ -125,6 +155,11 @@ public class MaterialService {
         }
 
         return detail;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getMaterialDetail(Long id) {
+        return getMaterialDetail(id, null, "ADMIN");
     }
 
     @Transactional(readOnly = true)
@@ -223,7 +258,47 @@ public class MaterialService {
     }
 
     @Transactional
-    public Map<String, Object> importMaterials(MultipartFile file, String cpseName, boolean dryRun) throws Exception {
+    public SourceMaterial createMaterial(com.sih.material.dto.CreateMaterialRequest req, Long userId, String employeeId) {
+        String cpseName = req.getCpseName() != null && !req.getCpseName().isBlank() ? req.getCpseName().trim() : "ONGC";
+        String code = req.getMaterialCode().trim();
+
+        Optional<SourceMaterial> existing = (userId != null)
+                ? sourceMaterialRepository.findByUserIdAndCpseNameAndMaterialCode(userId, cpseName, code)
+                : sourceMaterialRepository.findByCpseNameAndMaterialCode(cpseName, code);
+
+        SourceMaterial mat = existing.orElse(new SourceMaterial());
+        mat.setUserId(userId);
+        mat.setCpseName(cpseName);
+        mat.setMaterialCode(code);
+        mat.setDescription(req.getDescription().trim());
+        if (req.getSpecification() != null) mat.setSpecification(req.getSpecification().trim());
+        if (req.getMaterialType() != null) mat.setMaterialType(req.getMaterialType().trim());
+        if (req.getMaterialGrade() != null) mat.setMaterialGrade(req.getMaterialGrade().trim());
+        if (req.getDimensions() != null) mat.setDimensions(req.getDimensions().trim());
+        if (req.getUnitOfMeasure() != null) mat.setUnitOfMeasure(req.getUnitOfMeasure().trim());
+        if (req.getManufacturer() != null) mat.setManufacturer(req.getManufacturer().trim());
+        if (req.getPartNumber() != null) mat.setPartNumber(req.getPartNumber().trim());
+        if (req.getCategory() != null) mat.setCategory(req.getCategory().trim());
+        mat.setSourceFile("MANUAL_CREATION");
+
+        SourceMaterial saved = sourceMaterialRepository.save(mat);
+
+        auditService.recordLog(
+                "CREATE_MATERIAL",
+                "source_materials",
+                String.valueOf(saved.getId()),
+                null,
+                saved.getMaterialCode(),
+                employeeId != null ? employeeId : "SYSTEM",
+                "User created material in catalog",
+                "{\"materialCode\":\"" + saved.getMaterialCode() + "\",\"userId\":" + userId + "}"
+        );
+
+        return saved;
+    }
+
+    @Transactional
+    public Map<String, Object> importMaterials(MultipartFile file, String cpseName, boolean dryRun, Long userId, String employeeId) throws Exception {
         UploadPreviewResponse preview = previewUpload(file, cpseName);
         if (!preview.isValid()) {
             throw new IllegalArgumentException("Invalid schema: " + preview.getValidationMessage());
@@ -260,8 +335,11 @@ public class MaterialService {
                     continue;
                 }
 
-                Optional<SourceMaterial> existing = sourceMaterialRepository.findByCpseNameAndMaterialCode(cpseName, code);
+                Optional<SourceMaterial> existing = (userId != null)
+                        ? sourceMaterialRepository.findByUserIdAndCpseNameAndMaterialCode(userId, cpseName, code)
+                        : sourceMaterialRepository.findByCpseNameAndMaterialCode(cpseName, code);
                 SourceMaterial mat = existing.orElse(new SourceMaterial());
+                mat.setUserId(userId);
                 mat.setCpseName(cpseName);
                 mat.setMaterialCode(code);
                 mat.setDescription(desc);
@@ -283,17 +361,23 @@ public class MaterialService {
                 cpseName,
                 null,
                 "Imported " + importedCount + " records",
-                "PROCUREMENT_OFFICER",
+                employeeId != null ? employeeId : "PROCUREMENT_OFFICER",
                 "Batch material catalog ingestion from " + preview.getFilename(),
-                "{\"filename\": \"" + preview.getFilename() + "\", \"imported\": " + importedCount + "}"
+                "{\"filename\": \"" + preview.getFilename() + "\", \"imported\": " + importedCount + ", \"user_id\": " + userId + "}"
         );
 
         Map<String, Object> resp = new HashMap<>();
         resp.put("status", "SUCCESS");
         resp.put("imported_count", importedCount);
+        resp.put("records_ingested", importedCount);
         resp.put("skipped_count", skippedCount);
         resp.put("cpse_name", cpseName);
         resp.put("filename", preview.getFilename());
         return resp;
+    }
+
+    @Transactional
+    public Map<String, Object> importMaterials(MultipartFile file, String cpseName, boolean dryRun) throws Exception {
+        return importMaterials(file, cpseName, dryRun, null, "PROCUREMENT_OFFICER");
     }
 }

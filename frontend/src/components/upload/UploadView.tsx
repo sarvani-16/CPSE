@@ -90,7 +90,7 @@ export const UploadView: React.FC = () => {
 
         <div style={{ padding: '24px' }}>
           <form onSubmit={handleUpload}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) 2fr', gap: '20px', marginBottom: '20px' }}>
+            <div className="upload-form-grid" style={{ display: 'grid', gap: '20px', marginBottom: '20px' }}>
               <div className="form-group">
                 <label className="form-label">Target CPSE Entity</label>
                 <select

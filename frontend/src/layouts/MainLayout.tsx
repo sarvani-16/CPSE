@@ -23,6 +23,8 @@ import {
   LogOut,
   ChevronDown,
   Shield,
+  Menu,
+  X,
 } from 'lucide-react';
 
 interface NavCategory {
@@ -37,6 +39,7 @@ interface NavCategory {
 export const MainLayout: React.FC = () => {
   const { user, role, logout, forbiddenMessage, clearForbiddenMessage } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -204,8 +207,17 @@ export const MainLayout: React.FC = () => {
 
   return (
     <div className="app-container">
+      {/* Mobile Drawer Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar (Deep Navy #0F2942) */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-brand-row">
             <div className="sidebar-logo-icon">M</div>
@@ -213,6 +225,14 @@ export const MainLayout: React.FC = () => {
               <span className="sidebar-title">SIH26099 Portal</span>
               <span className="sidebar-subtitle">CPSE Material Master</span>
             </div>
+            <button
+              type="button"
+              className="mobile-sidebar-close-btn"
+              onClick={() => setMobileSidebarOpen(false)}
+              aria-label="Close navigation sidebar"
+            >
+              <X size={18} />
+            </button>
           </div>
           <div className="sidebar-role-indicator">
             <span className="role-chip-label">ROLE</span>
@@ -233,7 +253,10 @@ export const MainLayout: React.FC = () => {
                     <NavLink
                       to={item.to}
                       className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                      onClick={() => clearForbiddenMessage()}
+                      onClick={() => {
+                        clearForbiddenMessage();
+                        setMobileSidebarOpen(false);
+                      }}
                     >
                       <span className="nav-icon">{item.icon}</span>
                       <span>{item.label}</span>
@@ -271,6 +294,14 @@ export const MainLayout: React.FC = () => {
         {/* Top Header strictly matching Section 14 */}
         <header className="top-bar">
           <div className="top-bar-branding">
+            <button
+              type="button"
+              className="mobile-menu-toggle-btn"
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              aria-label="Toggle navigation menu"
+            >
+              {mobileSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
             <div className="gov-seal-icon">
               <Shield size={20} />
             </div>

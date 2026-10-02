@@ -136,7 +136,7 @@ export const OfficerDashboard: React.FC<{ onNavigateToUpload?: () => void }> = (
       </div>
 
       {/* Row 1: Processing Pipeline Throughput & AI Recommendations */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 4fr) minmax(360px, 5fr)', gap: '16px', marginBottom: '16px' }}>
+      <div className="dashboard-two-col-grid" style={{ display: 'grid', gap: '16px', marginBottom: '16px' }}>
         {/* Processing Pipeline Stages */}
         <div className="table-surface" style={{ marginBottom: 0 }}>
           <div className="table-surface-header">
@@ -230,7 +230,7 @@ export const OfficerDashboard: React.FC<{ onNavigateToUpload?: () => void }> = (
       </div>
 
       {/* Row 2: Recent Uploads & Material Activity */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="dashboard-two-col-grid" style={{ display: 'grid', gap: '16px' }}>
         {/* My Recent Uploads */}
         <div className="table-surface">
           <div className="table-surface-header">
