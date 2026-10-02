@@ -67,8 +67,9 @@ services:
         generateValue: true
 
   # 3. React / Vite Frontend (Static Site)
-  - type: static
+  - type: web
     name: cpse-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
