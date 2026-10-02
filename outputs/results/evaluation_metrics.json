@@ -1,0 +1,121 @@
+{
+  "benchmark_dataset": "Kaggle Multimodal Product Matching (Development Benchmark)",
+  "disclaimer": "Metrics calculated on controlled benchmark pairs. NOT real CPSE performance.",
+  "total_evaluation_pairs": 1000,
+  "positive_pairs": 500,
+  "random_negative_pairs": 250,
+  "hard_negative_pairs": 250,
+  "threshold_used": 0.55,
+  "models": {
+    "TF-IDF Baseline (Lexical)": {
+      "precision": 0.9145,
+      "recall": 0.278,
+      "f1": 0.4264,
+      "accuracy": 0.626,
+      "true_positives": 139,
+      "false_positives": 13,
+      "true_negatives": 487,
+      "false_negatives": 361,
+      "confusion_matrix": {
+        "tp": 139,
+        "fp": 13,
+        "tn": 487,
+        "fn": 361
+      }
+    },
+    "RapidFuzz (Fuzzy)": {
+      "precision": 0.7794,
+      "recall": 0.848,
+      "f1": 0.8123,
+      "accuracy": 0.804,
+      "true_positives": 424,
+      "false_positives": 120,
+      "true_negatives": 380,
+      "false_negatives": 76,
+      "confusion_matrix": {
+        "tp": 424,
+        "fp": 120,
+        "tn": 380,
+        "fn": 76
+      }
+    },
+    "Sentence Transformer (Semantic)": {
+      "precision": 0.7807,
+      "recall": 0.84,
+      "f1": 0.8092,
+      "accuracy": 0.802,
+      "true_positives": 420,
+      "false_positives": 118,
+      "true_negatives": 382,
+      "false_negatives": 80,
+      "confusion_matrix": {
+        "tp": 420,
+        "fp": 118,
+        "tn": 382,
+        "fn": 80
+      }
+    },
+    "Hybrid Matching Engine (Ensemble)": {
+      "precision": 0.8532,
+      "recall": 0.686,
+      "f1": 0.7605,
+      "accuracy": 0.784,
+      "true_positives": 343,
+      "false_positives": 59,
+      "true_negatives": 441,
+      "false_negatives": 157,
+      "confusion_matrix": {
+        "tp": 343,
+        "fp": 59,
+        "tn": 441,
+        "fn": 157
+      }
+    }
+  },
+  "comparison_table": [
+    {
+      "model": "TF-IDF Baseline (Lexical)",
+      "precision": 0.9145,
+      "recall": 0.278,
+      "f1": 0.4264,
+      "accuracy": 0.626,
+      "false_positives": 13,
+      "false_negatives": 361,
+      "true_positives": 139,
+      "true_negatives": 487
+    },
+    {
+      "model": "RapidFuzz (Fuzzy)",
+      "precision": 0.7794,
+      "recall": 0.848,
+      "f1": 0.8123,
+      "accuracy": 0.804,
+      "false_positives": 120,
+      "false_negatives": 76,
+      "true_positives": 424,
+      "true_negatives": 380
+    },
+    {
+      "model": "Sentence Transformer (Semantic)",
+      "precision": 0.7807,
+      "recall": 0.84,
+      "f1": 0.8092,
+      "accuracy": 0.802,
+      "false_positives": 118,
+      "false_negatives": 80,
+      "true_positives": 420,
+      "true_negatives": 382
+    },
+    {
+      "model": "Hybrid Matching Engine (Ensemble)",
+      "precision": 0.8532,
+      "recall": 0.686,
+      "f1": 0.7605,
+      "accuracy": 0.784,
+      "false_positives": 59,
+      "false_negatives": 157,
+      "true_positives": 343,
+      "true_negatives": 441
+    }
+  ]
+}

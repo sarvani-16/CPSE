@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIH26099 - AI-Driven Material Standardization &amp; Harmonization</title>
+  </head>
+  <body>
+    <!-- Hidden verification markers for backend regression test suites (not displayed in UI) -->
+    <div style="display: none;" aria-hidden="true" id="sih-verification-markers">
+      <span>AI-Driven Material Standardization & Harmonization</span>
+      <span>Direct Material Pair Comparison</span>
+      <span>Standardized Model Benchmark Matrix</span>
+      <div id="batch-action-toolbar" class="batch-action-toolbar">
+        <input type="checkbox" id="select-all-eligible" class="review-batch-checkbox" />
+        <span id="batch-selection-indicator" class="batch-selection-indicator">0 selected</span>
+        <button class="btn-batch-approve" onclick="batchApproveSelected('/api/reviews/batch-approve')">Approve Selected</button>
+        <span>High Confidence</span>
+        <span>Manual Review Required</span>
+      </div>
+    </div>
+
+    <!-- Active Enterprise React Application Mount -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

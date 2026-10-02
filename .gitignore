@@ -1,0 +1,81 @@
+# =============================================================================
+# SIH26099 CPSE - Root Git Ignore Configuration
+# =============================================================================
+
+# --- Environment Variables & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# --- Node / React Frontend ---
+node_modules/
+*/node_modules/
+dist/
+*/dist/
+.vite/
+*/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+
+# --- Java / Spring Boot Backend ---
+target/
+*/target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/timing.properties
+
+# --- Python / FastAPI ML Service ---
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+*/venv/
+*/.venv/
+env/
+ENV/
+.pytest_cache/
+*/.pytest_cache/
+*.egg-info/
+.coverage
+htmlcov/
+.cache/
+
+# --- IDE & Editors ---
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# --- OS & Temporary Runtime Files ---
+.DS_Store
+Thumbs.db
+*.log
+edge-cdp/
+edge-temp/
+*.tmp
+*.bak
+
+# --- Scratch Screenshots & Test Outputs ---
+register_modal_preview.png
+register_modal_error_preview.png
+test1_validation_empty.png
+test1_validation_mismatch.png
+login_page_preview.png

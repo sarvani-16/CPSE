@@ -1,0 +1,53 @@
+{
+  "dataset_name": "Shopee Multimodal Product Matching (Kaggle Benchmark)",
+  "disclaimer": "Benchmark dataset strictly for algorithm development and testing. NOT CPSE data.",
+  "number_of_rows": 27188,
+  "number_of_columns": 5,
+  "column_names": [
+    "posting_id",
+    "image",
+    "image_phash",
+    "title",
+    "label_group"
+  ],
+  "data_types": {
+    "posting_id": "str",
+    "image": "str",
+    "image_phash": "str",
+    "title": "str",
+    "label_group": "int64"
+  },
+  "missing_values": {
+    "posting_id": 0,
+    "image": 0,
+    "image_phash": 0,
+    "title": 0,
+    "label_group": 0
+  },
+  "total_missing_values": 0,
+  "duplicate_rows": 0,
+  "unique_posting_ids": 27188,
+  "unique_label_groups": 8811,
+  "unique_titles": 26303,
+  "group_size_stats": {
+    "min": 2,
+    "max": 51,
+    "mean": 3.09,
+    "median": 2.0,
+    "std": 2.89,
+    "groups_with_2_records": 5618,
+    "groups_with_3_plus_records": 3193,
+    "groups_with_5_plus_records": 1097,
+    "groups_with_10_plus_records": 212
+  },
+  "title_length_stats": {
+    "char_min": 5,
+    "char_max": 357,
+    "char_mean": 56.25,
+    "char_median": 53.0,
+    "word_min": 1,
+    "word_max": 59,
+    "word_mean": 9.42,
+    "word_median": 9.0
+  }
+}

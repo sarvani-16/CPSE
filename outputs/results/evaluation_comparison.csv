@@ -1,0 +1,5 @@
+model,precision,recall,f1,accuracy,false_positives,false_negatives,true_positives,true_negatives
+TF-IDF Baseline (Lexical),0.9145,0.278,0.4264,0.626,13,361,139,487
+RapidFuzz (Fuzzy),0.7794,0.848,0.8123,0.804,120,76,424,380
+Sentence Transformer (Semantic),0.7807,0.84,0.8092,0.802,118,80,420,382
+Hybrid Matching Engine (Ensemble),0.8532,0.686,0.7605,0.784,59,157,343,441

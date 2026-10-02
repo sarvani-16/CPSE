@@ -1,0 +1,9 @@
+MAT_CODE,MAT_DESC,UOM,TECH_SPEC,GRADE,MFG,PART_NO
+ONGC-BLT-1001,M10 SS304 Hex Bolt 50mm,NOS,Grade 8.8 High Tensile ISO 4014,SS304,TATA Fasteners,TF-M10-50
+ONGC-BLT-1002,M10 SS316 Hex Bolt 50mm,NOS,Marine Grade High Corrosion Resistant,SS316,Sundaram Fasteners,SF-M10-50
+ONGC-PIP-2001,Seamless Carbon Steel Pipe 2 inch Sch 40,MTR,ASTM A106 Grade B Beveled Ends,A106-B,Jindal Tubular,JIND-CS-02
+ONGC-VLV-3001,Ball Valve 2 inch 150# Flanged,NOS,WCB Body SS316 Trim Class 150,SS316/WCB,L&T Valves,LNT-BV-150-02
+ONGC-PMP-4001,Centrifugal Pump Impeller SS316 250mm,NOS,Dynamic Balanced Closed Impeller 250mm,SS316,Kirloskar Brothers,KB-IMP-250
+ONGC-OIL-5001,Transformer Insulating Oil 12V Grade,LTR,Dielectric Breakdown Voltage 30kV,IEC 60296,Apar Industries,POW-OIL-12V
+ONGC-GSK-6001,Spiral Wound Gasket 2 inch 150#,NOS,SS304 with Flexible Graphite Filler,SS304,Champion Seals,CS-SWG-02
+ONGC-ELB-7001,CS 90 Deg Pipe Elbow 2 inch Sch 40,NOS,ASME B16.9 Butt Weld Long Radius,ASTM A234 WPB,MSL Piping,MSL-ELB-02
