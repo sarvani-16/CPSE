@@ -42,12 +42,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<Map<String, Object>> handleDatabaseException(DataAccessException ex) {
-        log.error("Enterprise Database exception encountered: {}", ex.getMessage());
+        log.error("Enterprise Database exception encountered: ", ex);
+        String detail = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.SERVICE_UNAVAILABLE.value());
         body.put("error", "Database Service Unavailable");
-        body.put("message", "The PostgreSQL enterprise database is unreachable or experienced a query failure. Please verify database connectivity.");
+        body.put("message", "Database operation failure: " + (detail != null ? detail : "Connection or query failed"));
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
@@ -98,7 +99,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("error", "Internal Server Error");
-        body.put("message", "An unexpected error occurred. Please contact the system administrator.");
+        body.put("message", ex.getMessage() != null && !ex.getMessage().isBlank() ? ex.getMessage() : "An unexpected server error occurred.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }
