@@ -60,6 +60,8 @@ services:
         value: https://cpse-ml-service.onrender.com
       - key: FRONTEND_URL
         value: https://*.onrender.com
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Xmx320m -Xms128m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -XX:MaxMetaspaceSize=128m"
       - key: JWT_SECRET
         generateValue: true
 

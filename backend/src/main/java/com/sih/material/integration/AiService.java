@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
@@ -26,12 +27,17 @@ public class AiService {
     private static final Logger log = LoggerFactory.getLogger(AiService.class);
 
     private final RestTemplate restTemplate;
+    private final RestTemplate fastRestTemplate;
 
     @Value("${ml-service.url:${ML_SERVICE_URL:http://localhost:8001}}")
     private String mlServiceUrl;
 
     public AiService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(1500);
+        factory.setReadTimeout(1500);
+        this.fastRestTemplate = new RestTemplate(factory);
     }
 
     public String getMlServiceUrl() {
@@ -91,12 +97,12 @@ public class AiService {
     public Map<String, Object> checkMlServiceHealth() {
         String endpoint = getMlServiceUrl() + "/api/health";
         try {
-            ResponseEntity<Map> response = restTemplate.getForEntity(endpoint, Map.class);
+            ResponseEntity<Map> response = fastRestTemplate.getForEntity(endpoint, Map.class);
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody();
             }
         } catch (Exception e) {
-            log.warn("ML Service health check failed: {}", e.getMessage());
+            log.warn("ML Service health check failed (service may be waking up): {}", e.getMessage());
         }
         Map<String, Object> fallback = new HashMap<>();
         fallback.put("status", "UNAVAILABLE");

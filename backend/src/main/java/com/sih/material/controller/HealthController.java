@@ -21,8 +21,25 @@ public class HealthController {
         this.aiService = aiService;
     }
 
-    @GetMapping({"/health", "/api/health"})
-    @Operation(summary = "System Health Check")
+    /**
+     * Ultra-fast liveness check for Render / load-balancer probes.
+     * Guaranteed to return 200 OK in < 2ms without downstream dependencies.
+     */
+    @GetMapping("/health")
+    @Operation(summary = "Liveness probe for cloud platform monitoring")
+    public ResponseEntity<Map<String, Object>> getLiveness() {
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("status", "UP");
+        resp.put("service", "SIH26099 Enterprise Spring Boot API Gateway");
+        resp.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.ok(resp);
+    }
+
+    /**
+     * Detailed application health & microservice status endpoint.
+     */
+    @GetMapping("/api/health")
+    @Operation(summary = "System Health and Microservice Connectivity Diagnostic")
     public ResponseEntity<Map<String, Object>> getHealth() {
         Map<String, Object> resp = new HashMap<>();
         resp.put("status", "ok");

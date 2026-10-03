@@ -61,6 +61,16 @@ public class DatabaseConfig {
                     ds.setJdbcUrl(jdbcUrl);
                     if (username != null) ds.setUsername(username);
                     if (password != null) ds.setPassword(password);
+
+                    // Production-grade cloud pool configuration
+                    ds.setPoolName("SIH26099-Cloud-HikariPool");
+                    ds.setMaximumPoolSize(5);
+                    ds.setMinimumIdle(1);
+                    ds.setIdleTimeout(60000); // 1 minute
+                    ds.setConnectionTimeout(20000); // 20 seconds
+                    ds.setMaxLifetime(1800000); // 30 minutes
+                    ds.setConnectionTestQuery("SELECT 1");
+                    ds.setValidationTimeout(3000); // 3 seconds
                     return ds;
                 } catch (Exception e) {
                     log.warn("[DB] Failed to parse DATABASE_URL as URI, falling back to standard configuration: {}", e.getMessage());
@@ -69,6 +79,14 @@ public class DatabaseConfig {
         }
 
         // Standard fallback to DataSourceProperties (application.yml, DB_HOST, DB_PORT, etc.)
-        return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+        HikariDataSource fallbackDs = properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+        fallbackDs.setPoolName("SIH26099-Fallback-HikariPool");
+        fallbackDs.setMaximumPoolSize(5);
+        fallbackDs.setMinimumIdle(1);
+        fallbackDs.setIdleTimeout(60000);
+        fallbackDs.setConnectionTimeout(20000);
+        fallbackDs.setMaxLifetime(1800000);
+        fallbackDs.setConnectionTestQuery("SELECT 1");
+        return fallbackDs;
     }
 }

@@ -28,5 +28,8 @@ COPY --from=builder /workspace/target/*.jar /app/app.jar
 ENV PORT=8080
 EXPOSE ${PORT}
 
+# Production JVM tuning for Render 512MB Free Tier (prevents OOM SIGKILL restarts)
+ENV JAVA_OPTS="-Xmx320m -Xms128m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -XX:MaxMetaspaceSize=128m"
+
 # Dynamic port binding: Render injects $PORT, Spring Boot binds 0.0.0.0:$PORT
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar"]

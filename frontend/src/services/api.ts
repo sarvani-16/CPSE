@@ -240,6 +240,67 @@ export function getStoredUser(): UserInfo | null {
   }
 }
 
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [2000, 3500, 5000];
+
+function isNetworkOrColdStartError(err: any): boolean {
+  if (!err) return false;
+  const msg = String(err.message || '').toLowerCase();
+  const name = String(err.name || '').toLowerCase();
+  return (
+    name === 'typeerror' ||
+    msg.includes('failed to fetch') ||
+    msg.includes('networkerror') ||
+    msg.includes('load failed') ||
+    msg.includes('network request failed') ||
+    msg.includes('connection refused')
+  );
+}
+
+async function executeFetch(url: string, options: RequestInit): Promise<Response> {
+  let lastError: any = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, options);
+
+      // Handle 502/503/504 gateway responses when Render wakes up container
+      if ([502, 503, 504].includes(res.status) && attempt < MAX_RETRIES) {
+        const delay = RETRY_DELAYS[attempt] || 4000;
+        console.warn(`[API] Received HTTP ${res.status} from cloud gateway. Server may be spinning up. Retrying attempt ${attempt + 1}/${MAX_RETRIES} in ${delay}ms...`);
+        window.dispatchEvent(new CustomEvent('server-waking-up', {
+          detail: { attempt: attempt + 1, maxRetries: MAX_RETRIES, delayMs: delay }
+        }));
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+
+      // If it succeeded after retries, announce server ready
+      if (attempt > 0) {
+        window.dispatchEvent(new CustomEvent('server-ready', {
+          detail: { message: 'Cloud server is now online and connected.' }
+        }));
+      }
+
+      return res;
+    } catch (err: any) {
+      lastError = err;
+      if (isNetworkOrColdStartError(err) && attempt < MAX_RETRIES) {
+        const delay = RETRY_DELAYS[attempt] || 4000;
+        console.warn(`[API] Network error or cold-start detected (${err.message}). Retrying attempt ${attempt + 1}/${MAX_RETRIES} in ${delay}ms...`);
+        window.dispatchEvent(new CustomEvent('server-waking-up', {
+          detail: { attempt: attempt + 1, maxRetries: MAX_RETRIES, delayMs: delay }
+        }));
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError;
+}
+
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
   const token = getStoredToken();
@@ -258,7 +319,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   }
 
   try {
-    const res = await fetch(url, {
+    const res = await executeFetch(url, {
       ...options,
       headers,
     });
@@ -288,6 +349,9 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return await res.json();
   } catch (err: any) {
     console.error(`API Error on ${endpoint}:`, err);
+    if (isNetworkOrColdStartError(err)) {
+      throw new Error('Cloud backend is waking up from idle state (Render free tier). Please wait 10 seconds and try again.');
+    }
     throw err;
   }
 }
@@ -302,7 +366,7 @@ async function downloadFile(endpoint: string, fallbackFilename = 'report.csv'): 
   }
 
   try {
-    const res = await fetch(url, { headers });
+    const res = await executeFetch(url, { headers });
 
     if (res.status === 401) {
       clearStoredSession();
@@ -532,8 +596,23 @@ export const api = {
   getJobStatus: (jobId: string) => request<any>(`/jobs/${jobId}`),
   getRecentJobs: () => request<any[]>('/jobs'),
 
-  // 12. Safe AI Telemetry & Model Status (ADMIN ONLY)
   getModelStatus: () => request<any>('/model-status'),
 
   getHealth: () => request<any>('/health'),
+
+  /**
+   * Silent background wake-up ping for Render cold-starts.
+   * Fires a lightweight probe to wake up the backend before user actions.
+   */
+  warmup: async (): Promise<boolean> => {
+    try {
+      const healthUrl = BASE_URL.endsWith('/api')
+        ? `${BASE_URL.replace(/\/api$/, '')}/health`
+        : `${BASE_URL}/health`;
+      const res = await fetch(healthUrl, { method: 'GET' });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
 };

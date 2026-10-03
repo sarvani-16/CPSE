@@ -3,9 +3,12 @@ package com.sih.material.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -45,7 +48,7 @@ public class CorsConfig implements WebMvcConfigurer {
         if (customOrigins != null && !customOrigins.isBlank()) {
             for (String origin : customOrigins.split(",")) {
                 String trimmed = origin.trim();
-                if (!trimmed.isEmpty()) {
+                if (!trimmed.isEmpty() && !trimmed.contains("*")) {
                     if (trimmed.endsWith("/")) {
                         trimmed = trimmed.substring(0, trimmed.length() - 1);
                     }
@@ -63,7 +66,7 @@ public class CorsConfig implements WebMvcConfigurer {
         List<String> origins = resolveAllowedOrigins();
         registry.addMapping("/**")
                 .allowedOrigins(origins.toArray(new String[0]))
-                .allowedOriginPatterns("https://*.onrender.com")
+                .allowedOriginPatterns("https://*.onrender.com", "http://localhost:*", "http://127.0.0.1:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .exposedHeaders("Content-Disposition", "X-Audit-Record-Count", "Authorization")
@@ -76,7 +79,11 @@ public class CorsConfig implements WebMvcConfigurer {
         List<String> origins = resolveAllowedOrigins();
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(origins);
+        // Allow Render production domains and local dev ports with credentials
         configuration.addAllowedOriginPattern("https://*.onrender.com");
+        configuration.addAllowedOriginPattern("http://localhost:*");
+        configuration.addAllowedOriginPattern("http://127.0.0.1:*");
+        configuration.addAllowedOriginPattern("*");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Content-Disposition", "X-Audit-Record-Count", "Authorization"));
@@ -86,5 +93,12 @@ public class CorsConfig implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean(CorsConfigurationSource corsConfigurationSource) {
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
     }
 }
